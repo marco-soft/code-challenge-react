@@ -1,25 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { ThemeProvider } from '@mui/material/styles';
+import { store } from './store/store';
+import { routes } from './routes';
+import { theme, layoutStyles } from './styles/theme';
+import {
+  Container,
+  Box,
+  Typography,
+  AppBar,
+  Toolbar,
+} from '@mui/material';
+
+function AppRoutes() {
+  const element = useRoutes(routes);
+  return (
+    <Box sx={layoutStyles.root}>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={layoutStyles.toolbar}>
+            Code Challenge - Marco Garofalo
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Container sx={layoutStyles.container}>
+        {element}
+      </Container>
+    </Box>
+  );
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </ThemeProvider>
+    </Provider>
   );
 }
 
