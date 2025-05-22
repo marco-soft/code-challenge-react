@@ -19,8 +19,10 @@ import { CreateSubmittalModalProps } from '../types/ui';
 
 export const CreateSubmittalModal: React.FC<CreateSubmittalModalProps> = ({ open, onClose, onSubmit }) => {
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState<CreateSubmittalPayload>({
-    specSection: '',
+    spec: '',
     subSpecSection: '',
     title: '',
     description: '',
@@ -30,12 +32,12 @@ export const CreateSubmittalModal: React.FC<CreateSubmittalModalProps> = ({ open
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await onSubmit(formData);
+      const result = await onSubmit(formData);
       setShowSuccess(true);
       onClose();
       // Reset form data
       setFormData({
-        specSection: '',
+        spec: '',
         subSpecSection: '',
         title: '',
         description: '',
@@ -43,6 +45,8 @@ export const CreateSubmittalModal: React.FC<CreateSubmittalModalProps> = ({ open
       });
     } catch (error) {
       console.error('Error creating submittal:', error);
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to create submittal');
+      setShowError(true);
     }
   };
 
@@ -63,6 +67,21 @@ export const CreateSubmittalModal: React.FC<CreateSubmittalModalProps> = ({ open
           Item created successfully!
         </Alert>
       </Snackbar>
+      <Snackbar
+        open={showError}
+        autoHideDuration={5000}
+        onClose={() => setShowError(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setShowError(false)}
+          severity="error"
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       <Modal open={open} onClose={onClose}>
         <Box sx={componentStyles.modal}>
           <Typography variant="h6" component="h2" gutterBottom>
@@ -72,9 +91,9 @@ export const CreateSubmittalModal: React.FC<CreateSubmittalModalProps> = ({ open
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel>Spec Section</InputLabel>
             <Select
-              value={formData.specSection}
+              value={formData.spec}
               label="Spec Section"
-              onChange={(e) => setFormData({ ...formData, specSection: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, spec: e.target.value })}
               required
             >
               <MenuItem value="000000">000000 - Attachments</MenuItem>

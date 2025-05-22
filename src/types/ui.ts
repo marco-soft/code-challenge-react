@@ -11,10 +11,15 @@ export interface SubmittalsTableProps {
   submittals: Submittal[];
   loading: boolean;
   error: string | null;
+  page: number;
+  rowsPerPage: number;
+  totalCount: number;
+  onPageChange: (newPage: number) => void;
+  onRowsPerPageChange: (newRowsPerPage: number) => void;
 }
 
 export interface CreateSubmittalModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateSubmittalPayload) => void;
+  onSubmit: (data: CreateSubmittalPayload) => Promise<Submittal>;
 }

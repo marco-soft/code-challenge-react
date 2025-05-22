@@ -13,7 +13,7 @@ export interface Submittal {
 }
 
 export interface CreateSubmittalPayload {
-  specSection: string;
+  spec: string;
   subSpecSection?: string;
   title: string;
   description?: string;

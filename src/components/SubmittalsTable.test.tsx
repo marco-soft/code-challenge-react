@@ -5,6 +5,11 @@ const defaultProps = {
   submittals: [],
   loading: false,
   error: null,
+  page: 0,
+  rowsPerPage: 10,
+  totalCount: 0,
+  onPageChange: () => {},
+  onRowsPerPageChange: () => {},
 };
 
 describe('SubmittalsTable', () => {

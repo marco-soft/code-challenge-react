@@ -6,6 +6,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TablePagination,
   Paper,
   Typography,
   Box,
@@ -14,7 +15,16 @@ import {
 import { Link } from 'react-router-dom';
 import { SubmittalsTableProps } from '../types/ui';
 
-export const SubmittalsTable: React.FC<SubmittalsTableProps> = ({ submittals, loading, error }) => {
+export const SubmittalsTable: React.FC<SubmittalsTableProps> = ({ 
+  submittals, 
+  loading, 
+  error, 
+  page,
+  rowsPerPage,
+  totalCount,
+  onPageChange,
+  onRowsPerPageChange
+}) => {
   if (loading) return <Typography>Loading...</Typography>;
 
   if (error) return <Typography color="error">{error}</Typography>;
@@ -105,6 +115,15 @@ export const SubmittalsTable: React.FC<SubmittalsTableProps> = ({ submittals, lo
           ))}
         </TableBody>
       </Table>
+      <TablePagination
+        component="div"
+        count={totalCount}
+        page={page}
+        onPageChange={(_, newPage) => onPageChange(newPage)}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={(event) => onRowsPerPageChange(parseInt(event.target.value, 10))}
+        rowsPerPageOptions={[5, 10, 25]}
+      />
     </TableContainer>
   );
 };

@@ -44,14 +44,23 @@ export function SubmittalsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     dispatch(fetchSubmittals());
   }, [dispatch]);
 
-  const handleCreateSubmittal = (submittal: CreateSubmittalPayload) => {
-    dispatch(createSubmittal(submittal));
-    setIsModalOpen(false);
+  const handleCreateSubmittal = async (submittal: CreateSubmittalPayload) => {
+    try {
+      const resultAction = await dispatch(createSubmittal(submittal));
+      if (createSubmittal.fulfilled.match(resultAction)) {
+        return resultAction.payload;
+      }
+      throw new Error('Failed to create submittal');
+    } catch (error) {
+      throw error;
+    }
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -59,7 +68,8 @@ export function SubmittalsPage() {
   };
 
   const filteredSubmittals = submittals.filter((submittal: Submittal) =>
-    submittal.title.toLowerCase().includes(searchQuery.toLowerCase())
+    submittal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    submittal.spec.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -69,69 +79,76 @@ export function SubmittalsPage() {
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
           <Tab label="Items" />
-          <Tab label="Packages" disabled title="Coming soon" />
+          <Tab label="Packages" title="Coming soon" />
         </Tabs>
       </Box>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box>
-          <Button
-            variant="contained"
-            onClick={() => setIsModalOpen(true)}
-            startIcon={<AddIcon />}
-            sx={{ mr: 1 }}
-          >
-            Create Item
-          </Button>
-          <Button
-            variant="outlined"
-            sx={{ mr: 1 }}
-            disabled
-            title="Coming soon"
-          >
-            Export
-          </Button>
-          <Button
-            variant="outlined"
-            disabled
-            title="Coming soon"
-          >
-            Filter
-          </Button>
+      <TabPanel value={tabValue} index={0}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box>
+            <Button
+              variant="contained"
+              onClick={() => setIsModalOpen(true)}
+              startIcon={<AddIcon />}
+              sx={{ mr: 1 }}
+            >
+              Create Item
+            </Button>
+            {/*<Button
+              variant="outlined"
+              sx={{ mr: 1 }}
+              disabled
+              title="Coming soon"
+            >
+              Export
+            </Button>
+            {/*<Button
+              variant="outlined"
+              disabled
+              title="Coming soon"
+            >
+              Filter
+            </Button>*/}
+          </Box>
+          <TextField
+            placeholder="Search by title or spec..."
+            size="small"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{ width: '300px' }}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                )
+              }
+            }}
+          />
         </Box>
-        <TextField
-          size="small"
-          placeholder="Search by title, spec or ball in court"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          disabled
-          title="Coming soon"
-          sx={{ width: 300 }}
-          slotProps={{
-            input: {startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-            endAdornment: (
-              <InputAdornment position="end">
-                <FilterListIcon />
-              </InputAdornment>
-            ),}
+
+        <SubmittalsTable 
+          submittals={filteredSubmittals.slice(page * rowsPerPage, (page + 1) * rowsPerPage)}
+          loading={loading}
+          error={error}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          totalCount={filteredSubmittals.length}
+          onPageChange={(newPage) => setPage(newPage)}
+          onRowsPerPageChange={(newRowsPerPage) => {
+            setRowsPerPage(newRowsPerPage);
+            setPage(0);
           }}
         />
-      </Box>
-
-      <TabPanel value={tabValue} index={0}>
-        <SubmittalsTable submittals={filteredSubmittals} loading={loading} error={error} />
       </TabPanel>
 
       <TabPanel value={tabValue} index={1}>
-        <SubmittalsTable 
-          submittals={filteredSubmittals} 
-          loading={loading} 
-          error={error}
-        />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+          <Typography variant="h6" color="text.secondary">
+            🚧 This feature is under construction 🚧
+          </Typography>
+        </Box>
       </TabPanel>
 
       <CreateSubmittalModal
